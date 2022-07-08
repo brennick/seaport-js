@@ -3,6 +3,7 @@ import {
   BigNumberish,
   ContractTransaction,
   ethers,
+  PayableOverrides,
   providers,
 } from "ethers";
 import type {
@@ -189,6 +190,8 @@ export async function fulfillBasicOrder({
   signer,
   tips = [],
   conduitKey = NO_CONDUIT,
+  maxFeePerGas,
+  maxPriorityFeePerGas,
 }: {
   order: Order;
   seaportContract: Seaport;
@@ -200,6 +203,8 @@ export async function fulfillBasicOrder({
   signer: providers.JsonRpcSigner;
   tips?: ConsiderationItem[];
   conduitKey: string;
+  maxFeePerGas?: BigNumber;
+  maxPriorityFeePerGas?: BigNumber;
 }): Promise<
   OrderUseCase<
     ExchangeAction<
@@ -280,7 +285,15 @@ export async function fulfillBasicOrder({
     zoneHash: order.parameters.zoneHash,
   };
 
-  const payableOverrides = { value: totalNativeAmount };
+  const payableOverrides: PayableOverrides = { value: totalNativeAmount };
+
+  if (maxFeePerGas) {
+    payableOverrides.maxFeePerGas = maxFeePerGas;
+  }
+
+  if (maxPriorityFeePerGas) {
+    payableOverrides.maxPriorityFeePerGas = maxPriorityFeePerGas;
+  }
 
   const approvalActions = await getApprovalActions(
     insufficientApprovals,
@@ -323,6 +336,8 @@ export async function fulfillStandardOrder({
   conduitKey,
   recipientAddress,
   signer,
+  maxFeePerGas,
+  maxPriorityFeePerGas,
 }: {
   order: Order;
   unitsToFill?: BigNumberish;
@@ -341,6 +356,8 @@ export async function fulfillStandardOrder({
   recipientAddress: string;
   timeBasedItemParams: TimeBasedItemParams;
   signer: providers.JsonRpcSigner;
+  maxFeePerGas?: BigNumber;
+  maxPriorityFeePerGas?: BigNumber;
 }): Promise<
   OrderUseCase<
     ExchangeAction<
@@ -412,7 +429,15 @@ export async function fulfillStandardOrder({
     fulfillerOperator,
   });
 
-  const payableOverrides = { value: totalNativeAmount };
+  const payableOverrides: PayableOverrides = { value: totalNativeAmount };
+
+  if (maxFeePerGas) {
+    payableOverrides.maxFeePerGas = maxFeePerGas;
+  }
+
+  if (maxPriorityFeePerGas) {
+    payableOverrides.maxPriorityFeePerGas = maxPriorityFeePerGas;
+  }
 
   const approvalActions = await getApprovalActions(
     insufficientApprovals,
